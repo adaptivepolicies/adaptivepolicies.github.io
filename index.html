@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adaptive Policies: Formulating Plans with Large Language Models for Embodied Agents</title>
+  <meta name="description" content="Adaptive policies: language-model-written code policies that check their own assumptions and call the model again only when a checkpoint fails.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap">
+  <script>
+    // Apply the saved or system theme before the page paints.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    })();
+  </script>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">
+  <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+</button>
+
+<header class="container header">
+  <h1><span class="name">Adaptive Policies</span>: Formulating Plans with Large Language Models for Embodied Agents</h1>
+  <ul class="authors">
+    <li>Siphesihle Mthethwa</li>
+  </ul>
+  <p class="affiliation">School of Computer Science and Applied Mathematics<br>University of the Witwatersrand, Johannesburg</p>
+  <ul class="resources">
+    <li>
+      <a href="https://github.com/Siphesihle1/AdaptPolicies">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>Code</span>
+      </a>
+    </li>
+    <li>
+      <a href="#examples">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.7 11.3 2.4 8l3.3-3.3-1-1L.4 8l4.3 4.3zm4.6 0L13.6 8l-3.3-3.3 1-1L15.6 8l-4.3 4.3z"/></svg>
+        <span>Policies</span>
+      </a>
+    </li>
+    <li>
+      <a href="#citation">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h10v12l-5-3-5 3z"/></svg>
+        <span>Cite</span>
+      </a>
+    </li>
+  </ul>
+</header>
+
+<main>
+
+<figure class="container teaser">
+  <svg viewBox="0 0 900 300" role="img" aria-labelledby="teaser-title teaser-desc">
+    <title id="teaser-title">How an adaptive policy runs</title>
+    <desc id="teaser-desc">The model writes a policy once. The policy executes actions in the simulator and checks
+      checkpoints. A passing checkpoint makes no model call. A failed checkpoint, failed action or exception
+      calls the model, escalating from local recovery to helper regeneration to re-planning, and execution resumes.</desc>
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 10 5 0 10z" class="arrowhead"/>
+      </marker>
+    </defs>
+    <g class="node">
+      <rect x="10" y="40" width="150" height="70" rx="10"/>
+      <text x="85" y="68">Instruction</text>
+      <text x="85" y="90" class="small">&ldquo;Put the salmon</text>
+      <text x="85" y="104" class="small">in the fridge&rdquo;</text>
+    </g>
+    <g class="node model">
+      <rect x="215" y="40" width="160" height="70" rx="10"/>
+      <text x="295" y="70">Language model</text>
+      <text x="295" y="92" class="small">writes policy() once</text>
+    </g>
+    <g class="node">
+      <rect x="430" y="40" width="200" height="70" rx="10"/>
+      <text x="530" y="70">Execute in VirtualHome</text>
+      <text x="530" y="92" class="small">actions and observations</text>
+    </g>
+    <g class="node check">
+      <rect x="690" y="40" width="200" height="70" rx="10"/>
+      <text x="790" y="70">checkpoint(...)</text>
+      <text x="790" y="92" class="small">no model call if it passes</text>
+    </g>
+    <path d="M160 75H213" class="edge" marker-end="url(#arrow)"/>
+    <path d="M375 75H428" class="edge" marker-end="url(#arrow)"/>
+    <path d="M630 75H688" class="edge" marker-end="url(#arrow)"/>
+    <path d="M790 40V18H530V38" class="edge pass" marker-end="url(#arrow)"/>
+    <text x="660" y="13" class="label pass-label">passes: keep going</text>
+    <path d="M790 110V170" class="edge fail" marker-end="url(#arrow)"/>
+    <text x="802" y="140" class="label fail-label start">fails, or an action</text>
+    <text x="802" y="156" class="label fail-label start">or code fails</text>
+    <g class="node recover">
+      <rect x="330" y="172" width="560" height="110" rx="10"/>
+      <text x="610" y="198">Language model repairs the policy where it failed</text>
+      <text x="610" y="220" class="small">given the failure, current observation, running code and recent history</text>
+      <g class="steps">
+        <rect x="350" y="234" width="160" height="34" rx="17"/>
+        <text x="430" y="256" class="small">1. local recover()</text>
+        <rect x="530" y="234" width="160" height="34" rx="17"/>
+        <text x="610" y="256" class="small">2. regenerate helper</text>
+        <rect x="710" y="234" width="160" height="34" rx="17"/>
+        <text x="790" y="256" class="small">3. re-plan the rest</text>
+      </g>
+    </g>
+    <path d="M330 227H250Q230 227 230 207V145Q230 125 250 125H500Q530 125 530 112" class="edge fail" marker-end="url(#arrow)"/>
+    <text x="240" y="180" class="label fail-label start">resume</text>
+  </svg>
+  <figcaption>The model writes a policy once. While it runs, passing checkpoints cost nothing; the model
+    is called again only where something fails, and recovery escalates only as far as needed.</figcaption>
+</figure>
+
+<section class="container narrow">
+  <h2>Abstract</h2>
+  <p>
+    Large language models (LLMs) can translate natural-language instructions into action sequences for
+    embodied agents, but the plans they produce are often incomplete, unexecutable or ungrounded in what
+    the agent can observe. Planners that repair plans with feedback are more reliable, but they call the
+    model again at every step, which makes them slow and costly. We propose <em>adaptive policies</em>:
+    the model writes a Python policy once, in the style of Code as Policies, and the policy states its
+    expectations as <em>checkpoints</em> that are checked against the agent's observations while it runs.
+    A checkpoint that passes costs no model call. When a checkpoint, an action or the generated code
+    fails, the model is invoked with the failure, the current observation and the running code, and the
+    repair escalates from a local recovery step, to regenerating the failing helper function, to
+    re-planning the rest of the task. We evaluate adaptive policies in the VirtualHome household simulator
+    on the ProgPrompt task suites against two code-generation baselines, ProgPrompt and Code as Policies,
+    using open-weight hybrid models with their built-in reasoning switched on and off.
+  </p>
+</section>
+
+<section class="container narrow">
+  <h2>Approach</h2>
+  <p>
+    Code-generating planners already turn instructions into programs. ProgPrompt writes a straight-line
+    program whose assertions trigger recovery steps written in advance, so a wrong assumption about where
+    an object is cannot be corrected once the plan is written. Code as Policies writes a reactive policy
+    that observes and checks action results, but when it meets a situation it did not anticipate it can
+    only stop. In our baseline experiments, most failed Code as Policies trials were policies that had
+    correctly detected that they could not continue.
+  </p>
+  <p>
+    Adaptive policies keep the policy written once, and turn those points of failure into
+    <em>checkpoints</em> where the model is called again:
+  </p>
+<pre><code class="language-python">def policy():
+    find("fridge")
+    fridge = checkpoint("a fridge is visible",
+                        lambda: [o for o in get_visible_objects() if o.name == "fridge"])[0]
+    open(fridge)
+    checkpoint("the fridge is open", lambda: "OPEN" in (get_object_states(fridge) or ()))</code></pre>
+  <p>
+    <code>checkpoint(description, check)</code> runs an ordinary Python check over the observation API
+    and returns its value, so assignments receive fresh object references. A failed checkpoint, a failed
+    action or an exception in generated code starts recovery. The model sees the failure, the agent's
+    current observation, the running code, its local variables and the recent execution history, and
+    the repair escalates only as far as needed:
+  </p>
+  <ol class="levels">
+    <li><strong>Local recovery.</strong> A short <code>recover()</code> program fixes the immediate
+      problem, and the checkpoint is evaluated again.</li>
+    <li><strong>Helper regeneration.</strong> The failing helper function is rewritten and replaces the
+      old definition for the rest of the episode.</li>
+    <li><strong>Re-planning.</strong> A continuation <code>policy()</code> completes the rest of the task
+      from the current state, in the same episode.</li>
+  </ol>
+  <p>
+    Repeated failures without a successful action end the episode as making no progress, and every task
+    runs under a time and model-call budget. To separate what checkpoints contribute from what failure
+    handling contributes, we compare three placements of the points where the model can be called again:
+  </p>
+  <table class="placements">
+    <thead>
+      <tr><th scope="col">Placement</th><th scope="col">Model-written checkpoints</th>
+          <th scope="col">Recovery on failed actions</th><th scope="col">Recovery on code exceptions</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Explicit</th><td>&#10003;</td><td>&ndash;</td><td>&#10003;</td></tr>
+      <tr><th scope="row">Implicit</th><td>&ndash;</td><td>&#10003;</td><td>&#10003;</td></tr>
+      <tr><th scope="row">Both</th><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="container" id="examples">
+  <h2>Policies and Recoveries</h2>
+  <p class="intro">
+    Adaptive policies for the VirtualHome training tasks, as given to the model as few-shot examples.
+    Helpers such as <code>acquire_object</code> are written by the model on demand.
+  </p>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Policies</h3>
+      <label>Choose a task:
+        <select id="policy-select"></select>
+      </label>
+    </div>
+    <div class="card-body" id="policy-body">
+      <div class="video" id="policy-video" hidden></div>
+      <pre><code class="language-python" id="policy-code"></code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Recoveries</h3>
+      <label>Choose a failure:
+        <select id="recovery-select"></select>
+      </label>
+    </div>
+    <div class="card-body">
+      <dl class="context">
+        <dt>Trigger</dt><dd id="recovery-trigger"></dd>
+        <dt>Failure</dt><dd id="recovery-failure"></dd>
+        <dt>Observation</dt><dd id="recovery-observation"></dd>
+      </dl>
+      <p class="code-label">Code written by the model</p>
+      <pre><code class="language-python" id="recovery-code"></code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="container narrow">
+  <h2>Evaluation</h2>
+  <p>
+    All methods act in <a href="http://virtual-home.org/">VirtualHome</a>, where the agent only observes
+    the objects in its current room, on the 45 evaluation tasks of the ProgPrompt suites: seen and unseen
+    tasks, tasks with ambiguous goals, and two new household scenes. We use Qwen3.5-9B and Gemma&nbsp;4&nbsp;12B,
+    hybrid open-weight models whose reasoning can be switched on or off with the same weights, at three
+    sampling temperatures. Every intended task counts towards success rate, partial success rate and
+    executability, and we record model calls, time and tokens, and the cause of every failure.
+  </p>
+</section>
+
+<section class="container narrow" id="citation">
+  <h2>Citation</h2>
+  <div class="cite">
+    <div class="tabs" role="tablist" aria-label="Citation format">
+      <button role="tab" id="tab-bibtex" aria-controls="cite-bibtex" aria-selected="true">BibTeX</button>
+      <button role="tab" id="tab-biblatex" aria-controls="cite-biblatex" aria-selected="false" tabindex="-1">BibLaTeX</button>
+      <button role="tab" id="tab-ris" aria-controls="cite-ris" aria-selected="false" tabindex="-1">RIS</button>
+      <button role="tab" id="tab-apa" aria-controls="cite-apa" aria-selected="false" tabindex="-1">APA</button>
+    </div>
+    <div class="panel" role="tabpanel" id="cite-bibtex" aria-labelledby="tab-bibtex">
+<pre><code>@misc{mthethwa2026adaptive,
+  author       = {Mthethwa, Siphesihle},
+  title        = {Adaptive Policies: Formulating Plans with Large Language Models
+                  for Embodied Agents},
+  year         = {2026},
+  howpublished = {University of the Witwatersrand},
+  url          = {https://adaptivepolicies.github.io/}
+}</code></pre>
+      <button class="copy" type="button">Copy</button>
+    </div>
+    <div class="panel" role="tabpanel" id="cite-biblatex" aria-labelledby="tab-biblatex" hidden>
+<pre><code>@online{mthethwa2026adaptive,
+  author       = {Mthethwa, Siphesihle},
+  title        = {Adaptive Policies: Formulating Plans with Large Language Models
+                  for Embodied Agents},
+  year         = {2026},
+  organization = {University of the Witwatersrand},
+  url          = {https://adaptivepolicies.github.io/}
+}</code></pre>
+      <button class="copy" type="button">Copy</button>
+    </div>
+    <div class="panel" role="tabpanel" id="cite-ris" aria-labelledby="tab-ris" hidden>
+<pre><code>TY  - GEN
+AU  - Mthethwa, Siphesihle
+TI  - Adaptive Policies: Formulating Plans with Large Language Models for Embodied Agents
+PY  - 2026
+PB  - University of the Witwatersrand
+UR  - https://adaptivepolicies.github.io/
+ER  - </code></pre>
+      <button class="copy" type="button">Copy</button>
+    </div>
+    <div class="panel" role="tabpanel" id="cite-apa" aria-labelledby="tab-apa" hidden>
+<pre><code>Mthethwa, S. (2026). Adaptive policies: Formulating plans with large language models for embodied agents. University of the Witwatersrand. https://adaptivepolicies.github.io/</code></pre>
+      <button class="copy" type="button">Copy</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="container">
+  <p>The design of this page follows the <a href="https://code-as-policies.github.io/">Code as Policies</a> project page.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="js/examples.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
