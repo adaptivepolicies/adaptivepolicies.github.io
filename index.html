@@ -258,6 +258,34 @@
     sampling temperatures. Every intended task counts towards success rate, partial success rate and
     executability, and we record model calls, time and tokens, and the cause of every failure.
   </p>
+  <table class="placements results">
+    <caption>Success rate (%) over all six temperature and reasoning settings (270 trials per model and row). Model calls per task are given for the two models.</caption>
+    <thead>
+      <tr><th scope="col">Method</th><th scope="col">Qwen3.5-9B</th><th scope="col">Gemma&nbsp;4&nbsp;12B</th>
+          <th scope="col">Mean model calls</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">ProgPrompt</th><td>27.0</td><td>21.9</td><td>3.9&ndash;4.4</td></tr>
+      <tr><th scope="row">Code as Policies</th><td>13.0</td><td>8.9</td><td>3.3</td></tr>
+      <tr><th scope="row">Adaptive policies, explicit</th><td>21.9</td><td><strong>29.3</strong></td><td>7.4&ndash;10.0</td></tr>
+      <tr><th scope="row">Adaptive policies, implicit</th><td><strong>27.4</strong></td><td>23.3</td><td>8.3&ndash;10.2</td></tr>
+      <tr><th scope="row">Adaptive policies, both</th><td>23.7</td><td>21.1</td><td>8.6&ndash;12.6</td></tr>
+    </tbody>
+  </table>
+  <ul class="findings">
+    <li><strong>Recovery roughly doubles success.</strong> Scored at their first failure, before any
+      recovery, adaptive policies would have completed only 13.5% (Qwen) and 6.0% (Gemma) of tasks, close
+      to Code as Policies. With recovery they complete 24.3% and 24.6%.</li>
+    <li><strong>On par with ProgPrompt, and above it for Gemma with explicit checkpoints.</strong> No single
+      placement is best for both models: Qwen does best when failed actions trigger recovery, Gemma with
+      its own checkpoints.</li>
+    <li><strong>Repair costs calls only where it is needed.</strong> The median task makes 4&ndash;5 model
+      calls; the mean is higher because a few tasks need long recovery sequences.</li>
+    <li><strong>The largest remaining failure is code that never runs.</strong> Recovery acts during
+      execution, so it cannot repair a policy that is truncated or invalid before it starts. No method
+      completes a task with an ambiguous goal, and reasoning makes generation much slower without a
+      consistent gain.</li>
+  </ul>
 </section>
 
 <section class="container narrow" id="citation">

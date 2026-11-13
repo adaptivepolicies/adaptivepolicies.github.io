@@ -199,6 +199,9 @@ pre code.hljs { background: none; padding: 0; color: var(--text); }
 .placements th, .placements td { padding: 0.45rem 0.9rem; border-bottom: 1px solid var(--border); text-align: center; }
 .placements thead th { border-bottom: 2px solid var(--text); font-weight: 700; }
 .placements tbody th { text-align: left; }
+.placements caption { caption-side: bottom; color: var(--muted); font-size: 0.9rem; padding-top: 0.5rem; }
+.results td { font-variant-numeric: tabular-nums; }
+.findings li { margin-bottom: 0.5rem; }
 
 /* Example cards */
 .card { margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 6px; background: var(--card); overflow: hidden; }
