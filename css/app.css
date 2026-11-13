@@ -234,6 +234,10 @@ select {
 
 .video video { width: 100%; border-radius: 6px; margin-top: 0.8rem; background: #000; }
 
+.demo { margin: 0; }
+.demo video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 6px; border: 1px solid var(--border); background: #17181a; }
+.demo figcaption { color: var(--muted); font-size: 0.95rem; margin-top: 0.6rem; text-align: justify; hyphens: auto; }
+
 .context { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1rem; margin: 0.8rem 0 0; font-size: 0.92rem; }
 .context dt { font-weight: 700; }
 .context dd { margin: 0; color: var(--muted); word-break: break-word; }

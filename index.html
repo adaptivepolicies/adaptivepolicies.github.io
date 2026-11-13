@@ -139,6 +139,23 @@
   </p>
 </section>
 
+<section class="container" id="demo">
+  <h2>An Episode</h2>
+  <figure class="demo">
+    <video controls muted playsinline preload="metadata" poster="videos/demo-poster.jpg">
+      <source src="videos/demo.mp4" type="video/mp4">
+      <a href="videos/demo.mp4">Download the video</a>.
+    </video>
+    <figcaption>
+      An unseen evaluation task, <em>put salmon in the fridge</em>, run by Gemma&nbsp;4&nbsp;12B with explicit
+      checkpoints. The policy never opens the fridge, so <code>putin</code> fails and the checkpoint after
+      it does not hold. The model is called once at that checkpoint and writes a <code>recover()</code> that
+      opens the fridge and retries; the checkpoint then passes and the policy continues. Frames and code
+      are from the recorded trial.
+    </figcaption>
+  </figure>
+</section>
+
 <section class="container narrow">
   <h2>Approach</h2>
   <p>
