@@ -1,0 +1,29 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.500
+policy(): find(toaster). The agent walks to the toaster.
+
+2
+00:00:03.500 --> 00:00:07.000
+grab(bread) fails: the agent is not close to the bread.
+
+3
+00:00:07.000 --> 00:00:10.500
+Two local recoveries are written; both are rejected by the code checks.
+
+4
+00:00:10.500 --> 00:00:14.000
+The model re-plans from the current state. New policy: find(bread).
+
+5
+00:00:14.000 --> 00:00:15.500
+grab(bread)
+
+6
+00:00:15.500 --> 00:00:16.958
+putback(bread, toaster)
+
+7
+00:00:16.958 --> 00:00:21.125
+switchon(toaster). Task complete: 8 model calls.

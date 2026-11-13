@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Adaptive Policies: Formulating Plans with Large Language Models for Embodied Agents</title>
+  <title>Adaptive Policies: Code Policies for Embodied Agents</title>
   <meta name="description" content="Adaptive policies: language-model-written code policies that check their own assumptions and call the model again only when a checkpoint fails.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
@@ -32,7 +32,7 @@
 </button>
 
 <header class="container header">
-  <h1><span class="name">Adaptive Policies</span>: Formulating Plans with Large Language Models for Embodied Agents</h1>
+  <h1><span class="name">Adaptive Policies</span>: Code Policies for Embodied Agents</h1>
   <ul class="authors">
     <li>Siphesihle Mthethwa</li>
   </ul>
@@ -144,14 +144,17 @@
   <figure class="demo">
     <video controls muted playsinline preload="metadata" poster="videos/demo-poster.jpg">
       <source src="videos/demo.mp4" type="video/mp4">
+      <track kind="captions" src="videos/demo.vtt" srclang="en" label="Steps" default>
       <a href="videos/demo.mp4">Download the video</a>.
     </video>
     <figcaption>
-      An unseen evaluation task, <em>put salmon in the fridge</em>, run by Gemma&nbsp;4&nbsp;12B with explicit
-      checkpoints. The policy never opens the fridge, so <code>putin</code> fails and the checkpoint after
-      it does not hold. The model is called once at that checkpoint and writes a <code>recover()</code> that
-      opens the fridge and retries; the checkpoint then passes and the policy continues. Frames and code
-      are from the recorded trial.
+      <em>Make toast</em> in a new household scene, a task that ProgPrompt and Code as Policies never
+      completed, run by Gemma&nbsp;4&nbsp;12B with recovery from failed actions. The policy finds the
+      toaster but tries to grab the bread from where it stands, and the grab fails. Both local recoveries
+      the model writes are rejected by the code checks, so the failure escalates to re-planning: the model
+      writes a new policy from the current state, which fetches the bread, puts it in the toaster and
+      switches it on, eight model calls in all. The video is the VirtualHome simulator replaying the
+      actions of the recorded trial; it pauses where the agent waited for the model.
     </figcaption>
   </figure>
 </section>
@@ -300,8 +303,7 @@
     <div class="panel" role="tabpanel" id="cite-bibtex" aria-labelledby="tab-bibtex">
 <pre><code>@misc{mthethwa2026adaptive,
   author       = {Mthethwa, Siphesihle},
-  title        = {Adaptive Policies: Formulating Plans with Large Language Models
-                  for Embodied Agents},
+  title        = {Adaptive Policies: Code Policies for Embodied Agents},
   year         = {2026},
   howpublished = {University of the Witwatersrand},
   url          = {https://adaptivepolicies.github.io/}
@@ -311,8 +313,7 @@
     <div class="panel" role="tabpanel" id="cite-biblatex" aria-labelledby="tab-biblatex" hidden>
 <pre><code>@online{mthethwa2026adaptive,
   author       = {Mthethwa, Siphesihle},
-  title        = {Adaptive Policies: Formulating Plans with Large Language Models
-                  for Embodied Agents},
+  title        = {Adaptive Policies: Code Policies for Embodied Agents},
   year         = {2026},
   organization = {University of the Witwatersrand},
   url          = {https://adaptivepolicies.github.io/}
@@ -322,7 +323,7 @@
     <div class="panel" role="tabpanel" id="cite-ris" aria-labelledby="tab-ris" hidden>
 <pre><code>TY  - GEN
 AU  - Mthethwa, Siphesihle
-TI  - Adaptive Policies: Formulating Plans with Large Language Models for Embodied Agents
+TI  - Adaptive Policies: Code Policies for Embodied Agents
 PY  - 2026
 PB  - University of the Witwatersrand
 UR  - https://adaptivepolicies.github.io/
@@ -330,7 +331,7 @@ ER  - </code></pre>
       <button class="copy" type="button">Copy</button>
     </div>
     <div class="panel" role="tabpanel" id="cite-apa" aria-labelledby="tab-apa" hidden>
-<pre><code>Mthethwa, S. (2026). Adaptive policies: Formulating plans with large language models for embodied agents. University of the Witwatersrand. https://adaptivepolicies.github.io/</code></pre>
+<pre><code>Mthethwa, S. (2026). Adaptive policies: Code policies for embodied agents. University of the Witwatersrand. https://adaptivepolicies.github.io/</code></pre>
       <button class="copy" type="button">Copy</button>
     </div>
   </div>
